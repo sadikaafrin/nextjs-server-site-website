@@ -9,14 +9,23 @@ const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}
 let db;
 let usersCollection;
 
-const client = new MongoClient(uri, {
+const client = new MongoClient(process.env.MONGODB_URI, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
   },
 });
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: [
+    'https://nextjs-client-website.vercel.app',
+    'http://localhost:3000' // for local development
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -177,12 +186,11 @@ app.delete("/products/:id", async (req, res) => {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     db = client.db("furniture_db");
     usersCollection = db.collection("users");
     productCollection = db.collection("products");
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
